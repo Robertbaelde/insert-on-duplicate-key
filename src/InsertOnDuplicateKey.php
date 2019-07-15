@@ -18,7 +18,7 @@ trait InsertOnDuplicateKey
      *
      * @return int 0 if row is not changed, 1 if row is inserted, 2 if row is updated
      */
-    public static function insertOnDuplicateKey(array $data, array $updateColumns = null)
+    public static function insertOnDuplicateKey(array $data, array $updateColumns = null, $config = null)
     {
         if (empty($data)) {
             return false;
@@ -29,7 +29,7 @@ trait InsertOnDuplicateKey
             $data = [$data];
         }
 
-        $sql = static::buildInsertOnDuplicateSql($data, $updateColumns);
+        $sql = static::buildInsertOnDuplicateSql($data, $updateColumns, $config);
 
         $data = static::inLineArray($data);
 
@@ -231,11 +231,13 @@ trait InsertOnDuplicateKey
      *
      * @return string
      */
-    protected static function buildInsertOnDuplicateSql(array $data, array $updateColumns = null)
+    protected static function buildInsertOnDuplicateSql(array $data, array $updateColumns = null, $config = null)
     {
         $first = static::getFirstRow($data);
 
-        $sql  = 'INSERT INTO `' . static::getTablePrefix() . static::getTableName() . '`(' . static::getColumnList($first) . ') VALUES' . PHP_EOL;
+        $tablename = $config['tablename'] ?? static::getTableName();
+
+        $sql  = 'INSERT INTO `' . static::getTablePrefix() . $tablename . '`(' . static::getColumnList($first) . ') VALUES' . PHP_EOL;
         $sql .=  static::buildQuestionMarks($data) . PHP_EOL;
         $sql .= 'ON DUPLICATE KEY UPDATE ';
 
